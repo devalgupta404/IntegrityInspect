@@ -64,7 +64,7 @@ dependencies:
   # UI Components & Animations
   flutter_form_builder: ^9.1.1
   dropdown_search: ^5.0.6
-  image_cropper: ^5.0.1
+  image_cropper: ^11.0.0
   flutter_animate: ^4.3.0
   shimmer: ^3.0.0
   smooth_page_indicator: ^1.1.0
