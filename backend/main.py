@@ -42,7 +42,7 @@ app.add_middleware(
 )
 
 # Import routes after app initialization
-from api.routes import assessments, analysis
+from api.routes import assessments, analysis, physics_simulation
 
 # Include routers
 app.include_router(
@@ -54,6 +54,12 @@ app.include_router(
     analysis.router,
     prefix="/api/v1/analysis",
     tags=["analysis"]
+)
+
+app.include_router(
+    physics_simulation.router,
+    prefix="/api/v1/simulation",
+    tags=["physics-simulation"]
 )
 
 @app.get("/")

@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../services/camera_service.dart';
 import '../utils/constants.dart';
+import 'live_camera_screen.dart';
+import 'image_annotation_screen.dart';
 
 class PhotoCaptureScreen extends StatefulWidget {
   final List<String> existingPhotos;
@@ -58,7 +60,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
         children: [
           FloatingActionButton(
             heroTag: 'camera',
-            onPressed: _isProcessing ? null : _captureFromCamera,
+            onPressed: _isProcessing ? null : _openLiveCamera,
             child: _isProcessing
                 ? const SizedBox(
                     width: 24,
@@ -323,6 +325,28 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
               ),
             ),
           ),
+
+          // Annotate button
+          Positioned(
+            bottom: 8,
+            left: 8,
+            child: Material(
+              color: const Color(0xFF4CAF50),
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                onTap: () => _annotatePhoto(photoPath),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.edit_location,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     )
@@ -331,35 +355,29 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
         .slideY(begin: 0.2, end: 0);
   }
 
-  Future<void> _captureFromCamera() async {
+  Future<void> _openLiveCamera() async {
     if (_photos.length >= AppConstants.maxPhotosPerAssessment) {
       _showMaxPhotosDialog();
       return;
     }
 
-    setState(() => _isProcessing = true);
-
     try {
-      final cameraService = context.read<CameraService>();
+      final result = await Navigator.push<List<String>>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LiveCameraScreen(existingPhotos: _photos),
+        ),
+      );
 
-      // Request permission
-      final hasPermission = await cameraService.requestCameraPermission();
-      if (!hasPermission) {
-        throw Exception('Camera permission denied');
-      }
-
-      // Capture photo
-      final photoPath = await cameraService.capturePhoto();
-
-      if (photoPath != null) {
+      if (result != null) {
         setState(() {
-          _photos.add(photoPath);
+          _photos = result;
         });
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Photo captured and compressed'),
+              content: Text('${result.length} photo(s) captured'),
               backgroundColor: const Color(0xFF4CAF50),
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
@@ -376,8 +394,6 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
           ),
         );
       }
-    } finally {
-      setState(() => _isProcessing = false);
     }
   }
 
@@ -465,6 +481,15 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => _PhotoViewScreen(photoPath: photoPath),
+      ),
+    );
+  }
+
+  void _annotatePhoto(String photoPath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageAnnotationScreen(imagePath: photoPath),
       ),
     );
   }

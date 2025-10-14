@@ -7,9 +7,13 @@ import 'package:geolocator/geolocator.dart';
 import '../models/building_assessment.dart';
 import '../models/hazard.dart';
 import '../services/local_storage_service.dart';
+import '../services/assessment_completion_service.dart';
+import '../services/annotation_storage_service.dart';
+import '../models/annotation.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
 import 'photo_capture_screen.dart';
+import 'assessment_results_screen.dart';
 
 class AssessmentFormScreen extends StatefulWidget {
   const AssessmentFormScreen({super.key});
@@ -21,6 +25,12 @@ class AssessmentFormScreen extends StatefulWidget {
 class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
+
+  // Form controllers
+  final _numberOfFloorsController = TextEditingController();
+  final _yearBuiltController = TextEditingController();
+  final _damageDescriptionController = TextEditingController();
+  final _notesController = TextEditingController();
 
   // Form data
   String _buildingType = AppConstants.buildingTypes[0];
@@ -35,11 +45,30 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
   double _longitude = 0.0;
   String _address = '';
   bool _isLoadingLocation = false;
+  bool _isSubmitting = false;
+  List<Hazard> _hazards = [];
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
     _getCurrentLocation();
+  }
+
+  void _initializeControllers() {
+    _numberOfFloorsController.text = _numberOfFloors.toString();
+    _yearBuiltController.text = _yearBuilt.toString();
+    _damageDescriptionController.text = _damageDescription;
+    _notesController.text = _notes;
+  }
+
+  @override
+  void dispose() {
+    _numberOfFloorsController.dispose();
+    _yearBuiltController.dispose();
+    _damageDescriptionController.dispose();
+    _notesController.dispose();
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -221,7 +250,7 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
 
         // Number of Floors
         TextFormField(
-          initialValue: _numberOfFloors.toString(),
+          controller: _numberOfFloorsController,
           decoration: const InputDecoration(
             labelText: 'Number of Floors',
             hintText: 'Enter number of floors',
@@ -261,7 +290,7 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
 
         // Year Built
         TextFormField(
-          initialValue: _yearBuilt.toString(),
+          controller: _yearBuiltController,
           decoration: const InputDecoration(
             labelText: 'Year Built',
             hintText: 'Enter construction year',
@@ -382,12 +411,14 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
         const SizedBox(height: 24),
 
         TextFormField(
+          controller: _damageDescriptionController,
           maxLines: 5,
           decoration: const InputDecoration(
-            labelText: 'Damage Description',
+            labelText: 'Damage Description *',
             hintText: 'Describe the damage in detail...',
             alignLabelWithHint: true,
           ),
+          onChanged: (value) => _damageDescription = value,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please describe the damage';
@@ -400,12 +431,14 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
         const SizedBox(height: 16),
 
         TextFormField(
+          controller: _notesController,
           maxLines: 3,
           decoration: const InputDecoration(
             labelText: 'Additional Notes (Optional)',
             hintText: 'Any additional observations...',
             alignLabelWithHint: true,
           ),
+          onChanged: (value) => _notes = value,
           onSaved: (value) => _notes = value ?? '',
         ),
       ],
@@ -627,13 +660,19 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
         children: [
           if (_currentStep > 0)
             OutlinedButton(
-              onPressed: details.onStepCancel,
+              onPressed: () {
+                print('Back button pressed');
+                details.onStepCancel?.call();
+              },
               child: const Text('Back'),
             ),
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: details.onStepContinue,
+              onPressed: () {
+                print('Continue button pressed for step $_currentStep');
+                details.onStepContinue?.call();
+              },
               child: Text(_currentStep == 3 ? 'Submit' : 'Continue'),
             ),
           ),
@@ -643,37 +682,86 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
   }
 
   void _onStepContinue() {
+    print('=== STEP CONTINUE DEBUG ===');
+    print('Current step: $_currentStep');
+    print('Damage types: $_selectedDamageTypes');
+    print('Damage description: "$_damageDescription"');
+    print('Damage description length: ${_damageDescription.length}');
+    print('Damage description trimmed: "${_damageDescription.trim()}"');
+    print('Damage description trimmed length: ${_damageDescription.trim().length}');
+    
     if (_currentStep == 0) {
-      // Building type selected, continue
+      print('Step 0: Building type selected, continuing...');
       setState(() => _currentStep++);
     } else if (_currentStep == 1) {
-      // Validate building details
-      if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
-        setState(() => _currentStep++);
+      print('Step 1: Validating building details...');
+      print('Step 1: Number of floors: $_numberOfFloors');
+      print('Step 1: Primary material: $_primaryMaterial');
+      print('Step 1: Year built: $_yearBuilt');
+      print('Step 1: Latitude: $_latitude');
+      print('Step 1: Longitude: $_longitude');
+      
+      // Manual validation instead of form validation
+      if (_numberOfFloorsController.text.isEmpty || int.tryParse(_numberOfFloorsController.text) == null) {
+        print('Step 1: Number of floors validation failed');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid number of floors')),
+        );
+        return;
       }
+      
+      if (_yearBuiltController.text.isEmpty || int.tryParse(_yearBuiltController.text) == null) {
+        print('Step 1: Year built validation failed');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid year')),
+        );
+        return;
+      }
+      
+      // Update variables from controllers
+      _numberOfFloors = int.parse(_numberOfFloorsController.text);
+      _yearBuilt = int.parse(_yearBuiltController.text);
+      
+      print('Step 1: Manual validation passed, moving to next step');
+      setState(() => _currentStep++);
     } else if (_currentStep == 2) {
-      // Validate damage
+      print('Step 2: Validating damage assessment...');
+      
+      // Check damage types
       if (_selectedDamageTypes.isEmpty) {
+        print('Step 2: No damage types selected');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select at least one damage type')),
         );
         return;
       }
-      if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
-        setState(() => _currentStep++);
+      print('Step 2: Damage types selected: $_selectedDamageTypes');
+      
+      // Check damage description
+      if (_damageDescription.trim().isEmpty) {
+        print('Step 2: Damage description is empty');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please describe the damage')),
+        );
+        return;
       }
+      print('Step 2: Damage description is valid');
+      
+      print('Step 2: All validations passed, moving to next step');
+      setState(() => _currentStep++);
     } else if (_currentStep == 3) {
-      // Final submission
+      print('Step 3: Final submission...');
       if (_photoUrls.isEmpty) {
+        print('Step 3: No photos added');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please add at least one photo')),
         );
         return;
       }
+      print('Step 3: Submitting assessment...');
       _submitAssessment();
     }
+    print('=== END STEP CONTINUE DEBUG ===');
   }
 
   void _onStepCancel() {
@@ -697,37 +785,77 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
 
   Future<void> _submitAssessment() async {
     try {
-      final assessment = BuildingAssessment(
-        id: const Uuid().v4(),
-        timestamp: DateTime.now(),
+      setState(() => _isSubmitting = true);
+
+      print('Starting assessment submission...');
+      print('Photos: ${_photoUrls.length}');
+      print('Damage types: $_selectedDamageTypes');
+      print('Description: $_damageDescription');
+
+      // Collect all annotations from photos
+      final List<Annotation> allAnnotations = [];
+      final AnnotationStorageService storageService = AnnotationStorageService();
+      
+      for (final photoPath in _photoUrls) {
+        try {
+          final annotations = await storageService.loadAnnotations(photoPath);
+          allAnnotations.addAll(annotations);
+          print('Loaded ${annotations.length} annotations from $photoPath');
+        } catch (e) {
+          print('Error loading annotations from $photoPath: $e');
+        }
+      }
+
+      print('Total annotations collected: ${allAnnotations.length}');
+
+      // Create assessment data
+      final assessmentData = AssessmentData(
         buildingType: _buildingType,
         numberOfFloors: _numberOfFloors,
         primaryMaterial: _primaryMaterial,
         yearBuilt: _yearBuilt,
         damageTypes: _selectedDamageTypes,
         damageDescription: _damageDescription,
-        photoUrls: _photoUrls,
         latitude: _latitude,
         longitude: _longitude,
-        hazards: [],
+        hazards: _hazards.map((h) => h.toJson()).toList(),
         notes: _notes,
       );
 
-      await context.read<LocalStorageService>().saveAssessment(assessment);
+      // Submit to backend for GPT-5 analysis
+      final AssessmentCompletionService completionService = AssessmentCompletionService();
+      final AssessmentResult result = await completionService.submitCompleteAssessment(
+        assessmentData: assessmentData,
+        photoPaths: _photoUrls,
+        annotations: allAnnotations,
+      );
+
+      print('Assessment completed successfully!');
+      print('Risk level: ${result.riskLevel}');
+      print('Recommendations: ${result.recommendations.length}');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Assessment saved successfully!'),
-            backgroundColor: Color(0xFF4CAF50),
+        // Navigate to results screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AssessmentResultsScreen(result: result),
           ),
         );
-        Navigator.of(context).pop(assessment);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving assessment: $e')),
-      );
+      print('Error submitting assessment: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting assessment: $e'),
+            backgroundColor: const Color(0xFFF44336),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } finally {
+      setState(() => _isSubmitting = false);
     }
   }
 }

@@ -68,12 +68,17 @@ class CameraService {
 
   Future<String?> capturePhoto() async {
     if (_controller == null || !_controller!.value.isInitialized) {
+      print('Camera not initialized for capture');
       return null;
     }
 
     try {
+      print('Starting photo capture...');
       final XFile photo = await _controller!.takePicture();
+      print('Photo captured at: ${photo.path}');
+      
       final compressedPath = await compressImage(photo.path);
+      print('Photo compressed and saved at: $compressedPath');
       return compressedPath;
     } catch (e) {
       print('Error capturing photo: $e');

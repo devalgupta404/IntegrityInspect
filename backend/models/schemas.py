@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime
 from enum import Enum
 
@@ -75,5 +75,38 @@ class AnalysisResponse(BaseModel):
     video_url: Optional[str]
     generated_at: datetime
     confidence: str
+
+# Physics Simulation Schemas
+class AnnotationData(BaseModel):
+    id: str
+    position: Dict[str, float]  # {"x": 0.0, "y": 0.0}
+    issueType: str
+    description: str
+    color: str
+    timestamp: str
+
+class PhysicsSimulationRequest(BaseModel):
+    building_type: str
+    number_of_floors: int
+    primary_material: str
+    year_built: int
+    damage_types: List[str]
+    damage_description: str
+    latitude: float
+    longitude: float
+    annotations: List[AnnotationData]
+    photo_paths: List[str]
+
+class PhysicsSimulationResponse(BaseModel):
+    simulation_id: str
+    risk_level: str
+    engineering_analysis: str
+    safety_factor: float
+    failure_probability: float
+    confidence: str
+    fea_results: Dict
+    collapse_simulation: Dict
+    video_url: str
+    generated_at: str
 
 

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from openai import AsyncOpenAI
-from typing import Optional
+from typing import Optional, Dict
 import os
 
 logger = logging.getLogger(__name__)
@@ -10,9 +10,10 @@ class SoraService:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("OpenAI API key not provided")
-
-        self.client = AsyncOpenAI(api_key=self.api_key)
+            logger.warning("OpenAI API key not provided - using mock responses")
+            self.client = None
+        else:
+            self.client = AsyncOpenAI(api_key=self.api_key)
         self.model = os.getenv("SORA_MODEL", "sora-1.0")
 
     async def generate_collapse_simulation(
@@ -28,6 +29,11 @@ class SoraService:
         """
 
         try:
+            # Check if client is available (API key provided)
+            if not self.client:
+                logger.info("Using mock Sora video response (no API key)")
+                return "http://localhost:8000/mock_video.mp4"
+
             # Enhance the prompt for better simulation quality
             enhanced_prompt = f"""DOCUMENTARY STRUCTURAL ENGINEERING SIMULATION:
 

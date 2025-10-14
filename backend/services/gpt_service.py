@@ -12,9 +12,10 @@ class GPTService:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("OpenAI API key not provided")
-
-        self.client = AsyncOpenAI(api_key=self.api_key)
+            logger.warning("OpenAI API key not provided - using mock responses")
+            self.client = None
+        else:
+            self.client = AsyncOpenAI(api_key=self.api_key)
         self.model = os.getenv("GPT_MODEL", "gpt-4-vision-preview")
 
     def encode_image(self, image_path: str) -> str:
@@ -98,6 +99,22 @@ Focus on:
 
         try:
             logger.info(f"Analyzing building: {building_data.get('building_type')} with {len(image_urls)} images")
+
+            # Check if client is available (API key provided)
+            if not self.client:
+                logger.info("Using mock GPT analysis response (no API key)")
+                return {
+                    "risk_level": "high",
+                    "analysis": "Mock analysis: Structure shows significant damage with multiple crack patterns indicating potential progressive collapse. Immediate evacuation recommended.",
+                    "failure_mode": "Progressive collapse due to column damage",
+                    "recommendations": [
+                        "Immediate evacuation of all occupants",
+                        "Structural engineer assessment required",
+                        "Temporary shoring may be necessary"
+                    ],
+                    "sora_prompt": "Simulate progressive collapse of damaged building with crack propagation and structural failure",
+                    "confidence": "medium"
+                }
 
             # Call GPT-4 Vision
             response = await self.client.chat.completions.create(
