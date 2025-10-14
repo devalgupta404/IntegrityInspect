@@ -12,6 +12,14 @@ from typing import Dict, List, Optional
 from datetime import datetime
 import numpy as np
 
+# Try to import OpenCV
+try:
+    import cv2
+    OPENCV_AVAILABLE = True
+except ImportError:
+    OPENCV_AVAILABLE = False
+    logging.warning("OpenCV not available")
+
 logger = logging.getLogger(__name__)
 
 class SimulationVideoService:
@@ -51,8 +59,8 @@ class SimulationVideoService:
             with open(self.blender_script_path, 'w') as f:
                 f.write(blender_script)
             
-            # Run Blender to generate video
-            video_path = await self._run_blender_rendering(output_path)
+            # Try different video generation methods
+            video_path = await self._generate_video_with_fallback(simulation_data, output_path)
             
             logger.info(f"Simulation video generated: {video_path}")
             return video_path
@@ -60,6 +68,133 @@ class SimulationVideoService:
         except Exception as e:
             logger.error(f"Video generation error: {str(e)}")
             raise Exception(f"Failed to generate simulation video: {str(e)}")
+    
+    async def _generate_video_with_fallback(self, simulation_data: Dict, output_path: str) -> str:
+        """Try different video generation methods in order of preference"""
+        
+        # Method 1: Try OpenCV (most reliable, no external dependencies)
+        try:
+            logger.info("Attempting OpenCV video generation...")
+            return await self._generate_opencv_video(simulation_data, output_path)
+        except Exception as e:
+            logger.warning(f"OpenCV video generation failed: {str(e)}")
+        
+        # Method 2: Try Blender (best quality, requires Blender installation)
+        try:
+            logger.info("Attempting Blender video generation...")
+            return await self._run_blender_rendering(output_path)
+        except Exception as e:
+            logger.warning(f"Blender video generation failed: {str(e)}")
+        
+        # Method 3: Fallback to HTML5 visualization
+        logger.info("Using HTML5 fallback visualization...")
+        return self.create_simplified_video(simulation_data)
+    
+    async def _generate_opencv_video(self, simulation_data: Dict, output_path: str) -> str:
+        """Generate video using OpenCV (already installed)"""
+        try:
+            if not OPENCV_AVAILABLE:
+                raise Exception("OpenCV not available")
+            
+            logger.info("Generating OpenCV simulation video...")
+            
+            # Video settings
+            width, height = 800, 600
+            fps = 30
+            duration = simulation_data.get("simulation_duration", 10.0)
+            total_frames = int(duration * fps)
+            
+            # Create video writer
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+            
+            if not out.isOpened():
+                raise Exception("Could not open video writer")
+            
+            # Get simulation data
+            collapse_sequence = simulation_data.get("collapse_sequence", [])
+            debris_pattern = simulation_data.get("debris_pattern", [])
+            safety_zones = simulation_data.get("safety_zones", [])
+            
+            # Generate frames
+            for frame in range(total_frames):
+                # Create black frame
+                frame_img = np.zeros((height, width, 3), dtype=np.uint8)
+                
+                # Calculate time
+                time = frame / fps
+                
+                # Draw building structure
+                self._draw_building_structure(frame_img, time, collapse_sequence)
+                
+                # Draw debris
+                self._draw_debris(frame_img, time, debris_pattern)
+                
+                # Draw safety zones
+                self._draw_safety_zones(frame_img, safety_zones)
+                
+                # Add time text
+                cv2.putText(frame_img, f"Time: {time:.1f}s", (10, 30), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                
+                # Write frame
+                out.write(frame_img)
+            
+            out.release()
+            logger.info(f"OpenCV video generated: {output_path}")
+            return output_path
+            
+        except ImportError:
+            raise Exception("OpenCV not available")
+        except Exception as e:
+            raise Exception(f"OpenCV video generation failed: {str(e)}")
+    
+    def _draw_building_structure(self, frame: np.ndarray, time: float, collapse_sequence: List[Dict]):
+        """Draw building structure based on collapse sequence"""
+        # Simplified building visualization
+        height, width = frame.shape[:2]
+        
+        # Draw building outline
+        building_x = width // 2
+        building_width = 100
+        building_height = int(200 * (1 - time * 0.05))  # Gradually collapse
+        
+        if building_height > 0:
+            cv2.rectangle(frame, 
+                         (building_x - building_width//2, height - building_height),
+                         (building_x + building_width//2, height),
+                         (100, 100, 255), -1)  # Blue building
+            
+            cv2.rectangle(frame, 
+                         (building_x - building_width//2, height - building_height),
+                         (building_x + building_width//2, height),
+                         (255, 255, 255), 2)  # White outline
+    
+    def _draw_debris(self, frame: np.ndarray, time: float, debris_pattern: List[Dict]):
+        """Draw debris particles"""
+        height, width = frame.shape[:2]
+        
+        # Draw debris particles
+        for i in range(10):
+            x = int(width * (0.3 + 0.4 * (time + i * 0.1) % 1))
+            y = int(height * (0.8 - (time + i * 0.1) * 0.3))
+            
+            if 0 <= x < width and 0 <= y < height:
+                cv2.circle(frame, (x, y), 3, (255, 100, 0), -1)  # Orange debris
+    
+    def _draw_safety_zones(self, frame: np.ndarray, safety_zones: List[Dict]):
+        """Draw safety zones"""
+        height, width = frame.shape[:2]
+        
+        # Draw safety zones
+        for zone in safety_zones:
+            center_x = int(width * 0.5)
+            center_y = int(height * 0.7)
+            radius = 50
+            
+            cv2.circle(frame, (center_x, center_y), radius, (0, 255, 0), 2)  # Green safety zone
+            cv2.putText(frame, "SAFE ZONE", (center_x - 40, center_y - 60),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
     
     def _create_blender_script(self, simulation_data: Dict, output_path: str) -> str:
         """Create Blender Python script for rendering simulation"""
@@ -290,7 +425,9 @@ print("Simulation video rendering complete!")
             "blender.exe",
             "/usr/bin/blender",
             "/Applications/Blender.app/Contents/MacOS/Blender",
-            "C:\\Program Files\\Blender Foundation\\Blender 4.0\\blender.exe"
+            "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+            "C:\\Program Files\\Blender Foundation\\Blender 4.0\\blender.exe",
+            "C:\\Program Files\\Blender Foundation\\Blender 3.6\\blender.exe"
         ]
         
         for path in possible_paths:

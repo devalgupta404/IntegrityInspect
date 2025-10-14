@@ -11,7 +11,7 @@ class AssessmentCompletionService {
   AssessmentCompletionService._internal();
 
   // Backend API endpoints
-  static const String _baseUrl = 'http://localhost:8000/api/v1'; // Update with your backend URL
+  static const String _baseUrl = 'http://192.168.1.5:8000/api/v1'; // Host machine IP
   static const String _submitAssessmentEndpoint = '/assessments/submit';
   static const String _uploadPhotosEndpoint = '/assessments/upload-photos';
   static const String _getAnalysisEndpoint = '/assessments/status';
@@ -235,8 +235,8 @@ class AssessmentCompletionService {
       recommendations.add('Multi-story buildings require additional safety measures');
     }
     
-    // Generate Sora video URL (simulated)
-    final String videoUrl = 'https://sora-simulation.example.com/collapse_${DateTime.now().millisecondsSinceEpoch}.mp4';
+    // Generate offline video URL (placeholder for offline mode)
+    final String videoUrl = 'http://192.168.1.5:8000/api/v1/simulation/video/placeholder/offline_${DateTime.now().millisecondsSinceEpoch}';
     
     return AssessmentResult(
       assessmentId: DateTime.now().millisecondsSinceEpoch.toString(),
