@@ -50,6 +50,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       case 1:
         return _buildHistory();
       case 2:
+        return _buildMap();
+      case 3:
         return _buildSettings();
       default:
         return _buildDashboard();
@@ -86,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ).animate().fadeIn().slideX(begin: -0.2, end: 0),
                       const SizedBox(height: 8),
                       const Text(
-                        'Inspector',
+                        'Emergency Inspector',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -271,11 +273,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         const SizedBox(width: 12),
         Expanded(
           child: _buildActionCard(
-            'View History',
-            Icons.history,
+            'View Map',
+            Icons.map_outlined,
             AppTheme.successGradient,
             () {
-              setState(() => _selectedIndex = 1);
+              setState(() => _selectedIndex = 2);
             },
             100,
           ),
@@ -508,6 +510,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           label: 'History',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.map),
+          label: 'Map',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.settings),
           label: 'Settings',
         ),
@@ -539,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           }
         },
         icon: const Icon(Icons.add),
-        label: const Text('New '),
+        label: const Text('New Assessment'),
       ),
     );
   }

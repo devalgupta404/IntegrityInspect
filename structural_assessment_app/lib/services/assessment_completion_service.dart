@@ -11,7 +11,7 @@ class AssessmentCompletionService {
   AssessmentCompletionService._internal();
 
   // Backend API endpoints
-  static const String _baseUrl = 'http://192.168.1.5:8000/api/v1'; // Host machine IP
+  static const String _baseUrl = 'http://192.168.1.20:8000/api/v1'; // Host machine IP
   static const String _submitAssessmentEndpoint = '/assessments/submit';
   static const String _uploadPhotosEndpoint = '/assessments/upload-photos';
   static const String _getAnalysisEndpoint = '/assessments/status';
@@ -26,11 +26,22 @@ class AssessmentCompletionService {
     required List<Annotation> annotations,
   }) async {
     try {
-      print('Starting complete assessment submission...');
-      
+      print('══════════════════════════════════════════════════════════');
+      print('🚀 ASSESSMENT SUBMISSION STARTED');
+      print('══════════════════════════════════════════════════════════');
+      print('📋 Building Type: ${assessmentData.buildingType}');
+      print('🏢 Floors: ${assessmentData.numberOfFloors}');
+      print('🧱 Material: ${assessmentData.primaryMaterial}');
+      print('📅 Year Built: ${assessmentData.yearBuilt}');
+      print('⚠️  Damage Types: ${assessmentData.damageTypes}');
+      print('📸 Photos: ${photoPaths.length}');
+      print('📍 Annotations: ${annotations.length}');
+      print('──────────────────────────────────────────────────────────');
+
       // Call real physics simulation backend
-      print('Calling physics simulation backend...');
-      
+      print('🔗 Calling physics simulation backend...');
+      print('Backend URL: $_baseUrl$_physicsSimulationEndpoint');
+
       // Step 1: Prepare physics simulation request
       final Map<String, dynamic> simulationRequest = {
         'building_type': assessmentData.buildingType,
@@ -51,29 +62,48 @@ class AssessmentCompletionService {
         }).toList(),
         'photo_paths': photoPaths,
       };
-      
-      print('Submitting physics simulation request...');
-      print('Request data: ${jsonEncode(simulationRequest)}');
-      
+
+      print('📤 Sending HTTP POST request...');
+      final requestJson = jsonEncode(simulationRequest);
+      print('📦 Request size: ${requestJson.length} characters');
+
       // Step 2: Call physics simulation API
+      final startTime = DateTime.now();
       final response = await http.post(
         Uri.parse('$_baseUrl$_physicsSimulationEndpoint'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(simulationRequest),
+        body: requestJson,
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          print('❌ Request timed out after 30 seconds');
+          throw Exception('Physics simulation request timed out');
+        },
       );
-      
+
+      final requestDuration = DateTime.now().difference(startTime);
+      print('⏱️  Request completed in ${requestDuration.inSeconds}s');
+      print('📊 Response Status: ${response.statusCode}');
+      print('📦 Response Size: ${response.body.length} characters');
+
       if (response.statusCode == 200) {
+        print('──────────────────────────────────────────────────────────');
+        print('✅ Physics simulation completed successfully!');
+
         final responseData = jsonDecode(response.body);
-        print('Physics simulation completed successfully');
-        print('Risk Level: ${responseData['risk_level']}');
-        print('Safety Factor: ${responseData['safety_factor']}');
-        
+        print('🎯 Simulation ID: ${responseData['simulation_id']}');
+        print('⚠️  Risk Level: ${responseData['risk_level']}');
+        print('🔒 Safety Factor: ${responseData['safety_factor']}');
+        print('📈 Failure Probability: ${responseData['failure_probability']}');
+        print('🎥 Video URL: ${responseData['video_url']}');
+        print('──────────────────────────────────────────────────────────');
+
         // Convert backend response to AssessmentResult
         final AssessmentResult result = AssessmentResult(
           assessmentId: responseData['simulation_id'],
           riskLevel: responseData['risk_level'],
           analysis: responseData['engineering_analysis'],
-          failureMode: responseData['collapse_simulation']['failure_mode'],
+          failureMode: responseData['collapse_simulation']['failure_mode'] ?? 'Unknown',
           recommendations: _extractRecommendations(responseData['engineering_analysis']),
           videoUrl: responseData['video_url'],
           generatedAt: DateTime.parse(responseData['generated_at']),
@@ -83,18 +113,31 @@ class AssessmentCompletionService {
             'failure_probability': responseData['failure_probability'],
             'fea_results': responseData['fea_results'],
             'collapse_simulation': responseData['collapse_simulation'],
+            'building_type': assessmentData.buildingType,
+            'floors': assessmentData.numberOfFloors,
           },
         );
-        
+
+        print('✅✅✅ ASSESSMENT RESULT CREATED SUCCESSFULLY! ✅✅✅');
+        print('══════════════════════════════════════════════════════════');
         return result;
       } else {
-        print('Physics simulation failed: ${response.statusCode} - ${response.body}');
-        // Fallback to offline analysis
-        print('Falling back to offline analysis...');
+        print('──────────────────────────────────────────────────────────');
+        print('❌ Physics simulation failed!');
+        print('Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        print('──────────────────────────────────────────────────────────');
+        print('🔄 Falling back to offline analysis...');
+
         return await _runPhysicsAnalysis(assessmentData, annotations);
       }
-    } catch (e) {
-      print('Error submitting assessment: $e');
+    } catch (e, stackTrace) {
+      print('══════════════════════════════════════════════════════════');
+      print('❌❌❌ CRITICAL ERROR IN ASSESSMENT SUBMISSION ❌❌❌');
+      print('Error: $e');
+      print('Stack Trace:');
+      print(stackTrace);
+      print('══════════════════════════════════════════════════════════');
       rethrow;
     }
   }
@@ -236,7 +279,7 @@ class AssessmentCompletionService {
     }
     
     // Generate offline video URL (placeholder for offline mode)
-    final String videoUrl = 'http://192.168.1.5:8000/api/v1/simulation/video/placeholder/offline_${DateTime.now().millisecondsSinceEpoch}';
+    final String videoUrl = 'http://192.168.1.20:8000/api/v1/simulation/video/placeholder/offline_${DateTime.now().millisecondsSinceEpoch}';
     
     return AssessmentResult(
       assessmentId: DateTime.now().millisecondsSinceEpoch.toString(),

@@ -14,11 +14,11 @@ import sys
 # PyChrono imports for structural simulation
 try:
     import pychrono as chrono
-    import pychrono.postprocess as postprocess
+    # Note: postprocess module not needed for basic simulation
     PYCHRONO_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     PYCHRONO_AVAILABLE = False
-    logging.warning("PyChrono not available. Install with: pip install pychrono")
+    logging.warning(f"PyChrono not available: {str(e)}. Install with: pip install pychrono")
 
 # FEniCS imports for finite element analysis
 try:
