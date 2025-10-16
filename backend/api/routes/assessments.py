@@ -23,17 +23,14 @@ async def submit_assessment(
     assessment: AssessmentCreate,
     background_tasks: BackgroundTasks
 ):
-    """
-    Receive assessment data from mobile app
-    Trigger background analysis in background task
-    """
+
 
     assessment_id = str(uuid.uuid4())
 
-    # TODO: Persist assessment to database (placeholder)
+
     logger.info(f"Received assessment {assessment_id} - {assessment.building_type}")
 
-    # Trigger background analysis
+
     background_tasks.add_task(
         run_analysis,
         assessment_id,
@@ -52,10 +49,7 @@ async def upload_photos(
     assessment_id: str,
     files: List[UploadFile] = File(...)
 ):
-    """
-    Handle photo uploads from mobile app
-    Store in S3 (or configured storage) and return URLs
-    """
+
 
     if not files:
         raise HTTPException(400, "No files provided")
@@ -79,13 +73,8 @@ async def upload_photos(
 
 @router.get("/status/{assessment_id}")
 async def get_analysis_status(assessment_id: str):
-    """
-    Check analysis status
-    Return results if completed
-    NOTE: Placeholder without a real database
-    """
 
-    # In a real implementation, query the database for analysis result
+
     return {
         "assessment_id": assessment_id,
         "status": "processing",
@@ -94,9 +83,7 @@ async def get_analysis_status(assessment_id: str):
 
 
 async def run_analysis(assessment_id: str, assessment_data: dict):
-    """
-    Background task: Run GPT analysis and conditionally trigger Sora generation
-    """
+
     try:
         gpt_result = await gpt_service.analyze_structural_damage(
             building_data=assessment_data,
@@ -122,11 +109,10 @@ async def run_analysis(assessment_id: str, assessment_data: dict):
             "confidence": gpt_result.get('confidence', 'medium')
         }
 
-        # TODO: Persist analysis_record to database and update status
         logger.info(f"Analysis completed for {assessment_id}: {analysis_record['risk_level']}")
 
     except Exception as e:
         logger.error(f"Analysis failed for {assessment_id}: {str(e)}")
-        # TODO: Update status to failed in database
+
 
 

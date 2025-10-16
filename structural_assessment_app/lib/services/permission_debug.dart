@@ -19,7 +19,7 @@ class PermissionDebug {
         final status = await permission.status;
         print('${permission.toString()}: ${status.toString()}');
         
-        // Try to request it
+
         final requestStatus = await permission.request();
         print('${permission.toString()} after request: ${requestStatus.toString()}');
       } catch (e) {

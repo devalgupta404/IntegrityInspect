@@ -1,10 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'analysis_result.dart';
 
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
+
 
 class AnalysisResultAdapter extends TypeAdapter<AnalysisResult> {
   @override

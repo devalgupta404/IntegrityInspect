@@ -822,7 +822,7 @@ class _AssessmentFormScreenState extends State<AssessmentFormScreen> {
         notes: _notes,
       );
 
-      // Submit to backend for GPT-5 analysis
+      
       final AssessmentCompletionService completionService = AssessmentCompletionService();
       final AssessmentResult result = await completionService.submitCompleteAssessment(
         assessmentData: assessmentData,

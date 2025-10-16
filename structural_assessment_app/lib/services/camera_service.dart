@@ -63,7 +63,7 @@ class CameraService {
       final status = await Permission.storage.request();
       return status.isGranted;
     }
-    return true; // iOS doesn't need storage permission
+    return true; 
   }
 
   Future<String?> capturePhoto() async {
@@ -129,15 +129,14 @@ class CameraService {
 
   Future<String?> compressImage(String imagePath) async {
     try {
-      // Read the image
+
       final File imageFile = File(imagePath);
       final Uint8List imageBytes = await imageFile.readAsBytes();
 
-      // Decode the image
+
       img.Image? image = img.decodeImage(imageBytes);
       if (image == null) return null;
 
-      // Resize if too large (max 1920px on longest side)
       if (image.width > 1920 || image.height > 1920) {
         if (image.width > image.height) {
           image = img.copyResize(image, width: 1920);
@@ -146,15 +145,14 @@ class CameraService {
         }
       }
 
-      // Compress the image
+
       final List<int> compressedBytes = img.encodeJpg(
         image,
         quality: AppConstants.imageQuality,
       );
 
-      // Check if size is acceptable (< 2MB)
       if (compressedBytes.length > AppConstants.maxImageSizeMB * 1024 * 1024) {
-        // Further compression needed
+
         final List<int> moreCompressed = img.encodeJpg(
           image,
           quality: 70,
@@ -165,7 +163,7 @@ class CameraService {
       return await _saveCompressedImage(compressedBytes, imagePath);
     } catch (e) {
       print('Error compressing image: $e');
-      return imagePath; // Return original path if compression fails
+      return imagePath; 
     }
   }
 
@@ -179,17 +177,16 @@ class CameraService {
           'IMG_${DateTime.now().millisecondsSinceEpoch}_${path.basename(originalPath)}';
       final String filePath = path.join(appDir.path, 'images', fileName);
 
-      // Create directory if it doesn't exist
+
       final Directory imageDir = Directory(path.join(appDir.path, 'images'));
       if (!await imageDir.exists()) {
         await imageDir.create(recursive: true);
       }
 
-      // Save the compressed image
       final File compressedFile = File(filePath);
       await compressedFile.writeAsBytes(bytes);
 
-      // Delete original if it's a temp file
+
       if (originalPath.contains('cache')) {
         try {
           await File(originalPath).delete();
@@ -213,7 +210,7 @@ class CameraService {
 
       if (image == null) return null;
 
-      // Add timestamp watermark
+
       final img.Image watermarked = img.drawString(
         image,
         watermarkText,
@@ -223,7 +220,7 @@ class CameraService {
         color: img.ColorRgba8(255, 255, 255, 180),
       );
 
-      // Save watermarked image
+
       final Directory appDir = await getApplicationDocumentsDirectory();
       final String fileName = 'WM_${path.basename(imagePath)}';
       final String filePath = path.join(appDir.path, 'images', fileName);

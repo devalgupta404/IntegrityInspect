@@ -1,10 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+
 
 part of 'building_assessment.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class BuildingAssessmentAdapter extends TypeAdapter<BuildingAssessment> {
   @override

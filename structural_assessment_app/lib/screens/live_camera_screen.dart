@@ -36,8 +36,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
     try {
       print('Initializing camera...');
       final cameraService = context.read<CameraService>();
-      
-      // Request camera permission
+
       final hasPermission = await cameraService.requestCameraPermission();
       if (!hasPermission) {
         setState(() {
@@ -46,7 +45,6 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
         return;
       }
 
-      // Initialize camera controller
       _cameraController = await cameraService.initializeCameraController();
       
       if (_cameraController != null) {
@@ -454,16 +452,15 @@ class GridPainter extends CustomPainter {
       ..color = Colors.white.withOpacity(0.3)
       ..strokeWidth = 1;
 
-    // Draw grid lines
     for (int i = 1; i < 3; i++) {
-      // Vertical lines
+
       canvas.drawLine(
         Offset(size.width * i / 3, 0),
         Offset(size.width * i / 3, size.height),
         paint,
       );
       
-      // Horizontal lines
+
       canvas.drawLine(
         Offset(0, size.height * i / 3),
         Offset(size.width, size.height * i / 3),

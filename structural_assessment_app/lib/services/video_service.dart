@@ -16,14 +16,13 @@ class VideoService {
   final Map<String, double> _downloadProgress = {};
   final Map<String, CancelToken> _cancelTokens = {};
 
-  // Download video from URL
   Future<String?> downloadVideo({
     required String videoUrl,
     required String analysisId,
     Function(double)? onProgress,
   }) async {
     try {
-      // Request storage permission
+
       if (Platform.isAndroid) {
         final status = await Permission.storage.request();
         if (!status.isGranted) {
@@ -31,7 +30,7 @@ class VideoService {
         }
       }
 
-      // Get save directory
+
       final Directory appDir = await getApplicationDocumentsDirectory();
       final String videoDir = path.join(appDir.path, 'videos');
       final Directory videoDirObj = Directory(videoDir);
@@ -40,15 +39,13 @@ class VideoService {
         await videoDirObj.create(recursive: true);
       }
 
-      // Generate file name
       final String fileName = 'analysis_${analysisId}_${DateTime.now().millisecondsSinceEpoch}.mp4';
       final String filePath = path.join(videoDir, fileName);
 
-      // Create cancel token
       final cancelToken = CancelToken();
       _cancelTokens[analysisId] = cancelToken;
 
-      // Download the video
+
       await _dio.download(
         videoUrl,
         filePath,
@@ -67,14 +64,13 @@ class VideoService {
         ),
       );
 
-      // Update analysis result with local path
+
       await LocalStorageService().updateAnalysisVideoDownloadStatus(
         id: analysisId,
         isDownloaded: true,
         localPath: filePath,
       );
 
-      // Clean up
       _downloadProgress.remove(analysisId);
       _cancelTokens.remove(analysisId);
 
@@ -87,7 +83,7 @@ class VideoService {
     }
   }
 
-  // Cancel video download
+
   void cancelDownload(String analysisId) {
     final cancelToken = _cancelTokens[analysisId];
     if (cancelToken != null && !cancelToken.isCancelled) {
@@ -97,17 +93,17 @@ class VideoService {
     }
   }
 
-  // Get download progress
+
   double? getDownloadProgress(String analysisId) {
     return _downloadProgress[analysisId];
   }
 
-  // Check if video is downloading
+
   bool isDownloading(String analysisId) {
     return _cancelTokens.containsKey(analysisId);
   }
 
-  // Delete downloaded video
+
   Future<bool> deleteVideo(String filePath) async {
     try {
       final File videoFile = File(filePath);
@@ -122,7 +118,7 @@ class VideoService {
     }
   }
 
-  // Get video file size
+
   Future<int> getVideoSize(String filePath) async {
     try {
       final File videoFile = File(filePath);
@@ -136,7 +132,7 @@ class VideoService {
     }
   }
 
-  // Format file size
+
   String formatFileSize(int bytes) {
     if (bytes < 1024) {
       return '$bytes B';
@@ -149,14 +145,11 @@ class VideoService {
     }
   }
 
-  // Get video duration (requires video_player package)
+
   Future<Duration?> getVideoDuration(String filePath) async {
-    // This would require video_player package
-    // Implementation depends on your specific needs
+
     return null;
   }
-
-  // Share video
   Future<void> shareVideo(String filePath) async {
     try {
       final File videoFile = File(filePath);
@@ -172,7 +165,6 @@ class VideoService {
     }
   }
 
-  // Open video with external player
   Future<void> openVideo(String filePath) async {
     try {
       final File videoFile = File(filePath);
@@ -184,7 +176,7 @@ class VideoService {
     }
   }
 
-  // Get all downloaded videos
+
   Future<List<String>> getAllDownloadedVideos() async {
     try {
       final Directory appDir = await getApplicationDocumentsDirectory();
@@ -206,7 +198,7 @@ class VideoService {
     }
   }
 
-  // Delete all downloaded videos
+
   Future<int> deleteAllVideos() async {
     try {
       final videos = await getAllDownloadedVideos();
@@ -225,7 +217,7 @@ class VideoService {
     }
   }
 
-  // Get total storage used by videos
+
   Future<int> getTotalVideoStorage() async {
     try {
       final videos = await getAllDownloadedVideos();
@@ -242,7 +234,7 @@ class VideoService {
     }
   }
 
-  // Move video to external storage (Android only)
+
   Future<String?> moveToExternalStorage(String filePath) async {
     if (!Platform.isAndroid) return filePath;
 
@@ -257,17 +249,16 @@ class VideoService {
         path.basename(filePath),
       );
 
-      // Create directory if it doesn't exist
+
       final Directory externalVideoDir = Directory(path.dirname(externalPath));
       if (!await externalVideoDir.exists()) {
         await externalVideoDir.create(recursive: true);
       }
 
-      // Copy file
       final File sourceFile = File(filePath);
       await sourceFile.copy(externalPath);
 
-      // Delete original
+
       await sourceFile.delete();
 
       return externalPath;
@@ -277,7 +268,6 @@ class VideoService {
     }
   }
 
-  // Check if video file exists
   Future<bool> videoExists(String filePath) async {
     try {
       final File videoFile = File(filePath);
@@ -287,7 +277,7 @@ class VideoService {
     }
   }
 
-  // Clean up old videos (older than X days)
+
   Future<int> cleanupOldVideos({int daysOld = 30}) async {
     try {
       final videos = await getAllDownloadedVideos();

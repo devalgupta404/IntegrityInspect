@@ -12,7 +12,6 @@ class AnnotationStorageService {
 
   static const String _annotationsDir = 'annotations';
 
-  /// Save annotations for a specific image
   Future<void> saveAnnotations(String imagePath, List<Annotation> annotations) async {
     try {
       print('Saving ${annotations.length} annotations for image: $imagePath');
@@ -24,13 +23,11 @@ class AnnotationStorageService {
         await annotationsDir.create(recursive: true);
       }
 
-      // Create a unique filename based on image path
       final String imageFileName = path.basename(imagePath);
       final String nameWithoutExt = path.basenameWithoutExtension(imageFileName);
       final String annotationFileName = '${nameWithoutExt}_annotations.json';
       final String annotationFilePath = path.join(annotationsDir.path, annotationFileName);
 
-      // Convert annotations to JSON
       final List<Map<String, dynamic>> annotationsJson = annotations.map((a) => a.toJson()).toList();
       final String jsonString = jsonEncode({
         'imagePath': imagePath,
@@ -38,7 +35,7 @@ class AnnotationStorageService {
         'savedAt': DateTime.now().toIso8601String(),
       });
 
-      // Save to file
+
       final File annotationFile = File(annotationFilePath);
       await annotationFile.writeAsString(jsonString);
       
@@ -49,7 +46,6 @@ class AnnotationStorageService {
     }
   }
 
-  /// Load annotations for a specific image
   Future<List<Annotation>> loadAnnotations(String imagePath) async {
     try {
       print('Loading annotations for image: $imagePath');
@@ -83,7 +79,7 @@ class AnnotationStorageService {
     }
   }
 
-  /// Delete annotations for a specific image
+
   Future<void> deleteAnnotations(String imagePath) async {
     try {
       print('Deleting annotations for image: $imagePath');
@@ -105,7 +101,7 @@ class AnnotationStorageService {
     }
   }
 
-  /// Get all annotation files
+
   Future<List<String>> getAllAnnotationFiles() async {
     try {
       final Directory appDir = await getApplicationDocumentsDirectory();

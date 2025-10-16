@@ -144,7 +144,7 @@ class VideoDatabase {
   Future<int> deleteVideo(String id) async {
     final db = await instance.database;
 
-    // Also delete the video file from disk
+
     final video = await getVideoById(id);
     if (video != null) {
       final file = File(video.videoPath);

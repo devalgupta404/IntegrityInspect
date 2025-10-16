@@ -1,7 +1,4 @@
-"""
-ParaView Integration Service for Physics-Based Structural Collapse Simulation
-Uses VTK datasets and GPT-5 to generate highly accurate simulation videos
-"""
+
 
 import json
 import os
@@ -15,7 +12,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 class ParaViewService:
-    """Service for generating physics-based collapse simulations using ParaView"""
+
 
     def __init__(self, openai_client=None):
         self.paraview_path = self._find_paraview_executable()
@@ -23,7 +20,7 @@ class ParaViewService:
         self.openai_client = openai_client
 
     def _find_paraview_executable(self) -> Optional[str]:
-        """Find ParaView executable on the system"""
+
         possible_paths = [
             "pvpython",
             "pvpython.exe",
@@ -51,10 +48,10 @@ class ParaViewService:
                 continue
 
         logger.warning("ParaView not found on system - using VTK standalone")
-        return "python"  # Fallback to Python with VTK
+        return "python" 
 
     def is_available(self) -> bool:
-        """Check if ParaView/VTK is available"""
+
         try:
             import vtk
             return True
@@ -69,26 +66,14 @@ class ParaViewService:
         collapse_simulation: Dict,
         output_path: str
     ) -> str:
-        """
-        Generate physics-based simulation video using ParaView with GPT-5 guidance
 
-        Args:
-            building_data: Building parameters (type, floors, material, age, etc.)
-            annotations: List of damage annotations with coordinates
-            fea_results: Finite element analysis results
-            collapse_simulation: Collapse simulation data
-            output_path: Path to save the generated video
-
-        Returns:
-            Path to generated video file
-        """
         if not self.is_available():
             raise Exception("VTK/ParaView is not available. Please install: pip install vtk")
 
         try:
             logger.info("Preparing data for ParaView/VTK simulation...")
 
-            # Step 1: Generate GPT-5 simulation instructions
+
             simulation_instructions = await self._generate_simulation_instructions(
                 building_data,
                 annotations,
@@ -98,7 +83,7 @@ class ParaViewService:
 
             logger.info(f"GPT-5 simulation instructions: {simulation_instructions[:200]}...")
 
-            # Step 2: Convert assessment data to VTK format
+
             vtk_data = self._convert_to_vtk_format(
                 building_data,
                 annotations,
@@ -107,12 +92,10 @@ class ParaViewService:
                 simulation_instructions
             )
 
-            # Step 3: Save VTK datasets
             vtk_files = self._save_vtk_datasets(vtk_data)
 
             logger.info(f"Saved {len(vtk_files)} VTK datasets")
 
-            # Step 4: Generate ParaView/VTK Python script
             script_content = self._generate_paraview_script(
                 vtk_files,
                 output_path,
@@ -126,7 +109,7 @@ class ParaViewService:
 
             logger.info(f"Generated ParaView script: {script_file}")
 
-            # Step 5: Run ParaView/VTK script
+
             return await self._run_paraview(script_file, output_path)
 
         except Exception as e:
@@ -140,14 +123,13 @@ class ParaViewService:
         fea_results: Dict,
         collapse_simulation: Dict
     ) -> str:
-        """Use GPT-5 to generate simulation instructions based on assessment data"""
 
         if not self.openai_client:
             logger.warning("OpenAI client not available, using default instructions")
             return self._get_default_simulation_instructions(building_data, annotations)
 
         try:
-            # Prepare comprehensive prompt for GPT with all details
+
             building_type = building_data.get('building_type', 'residential')
             floors = building_data.get('number_of_floors', 5)
             material = building_data.get('primary_material', 'concrete')
@@ -155,9 +137,8 @@ class ParaViewService:
             damage_types = building_data.get('damage_types', [])
             damage_desc = building_data.get('damage_description', 'Multiple structural issues')
 
-            # Format annotations for GPT
             annotation_details = []
-            for i, ann in enumerate(annotations[:5]):  # Show first 5
+            for i, ann in enumerate(annotations[:5]):  
                 annotation_details.append(
                     f"  Location {i+1}: {ann.get('issueType', 'unknown')} at "
                     f"({ann.get('position', {}).get('x', 0):.1f}, {ann.get('position', {}).get('y', 0):.1f}) - "
@@ -248,13 +229,13 @@ Provide a comprehensive, technically accurate analysis for 3D visualization:
 Provide your analysis in clear, structured format. Be specific about numbers, timings, and technical details. This will guide a physics-based 3D simulation."""
 
             response = await self.openai_client.chat.completions.create(
-                model="gpt-4o",  # Using GPT-4o (latest model, will upgrade to GPT-5 when available)
+                model="gpt-4o",  
                 messages=[
                     {"role": "system", "content": "You are a senior structural engineer with 20+ years of experience in collapse analysis, finite element analysis, and structural failure prediction. Provide detailed, technically accurate guidance for physics-based simulations."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=2000,  # Increased for detailed responses
-                temperature=0.4  # Slightly higher for more creative but still accurate responses
+                max_tokens=2000,  
+                temperature=0.4 
             )
 
             instructions = response.choices[0].message.content
@@ -292,14 +273,14 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
     ) -> Dict:
         """Convert assessment data to VTK-compatible format"""
 
-        # Extract building parameters
+
         building_type = building_data.get("building_type", "residential")
         floors = building_data.get("number_of_floors", 5)
         material = building_data.get("primary_material", "concrete")
         year_built = building_data.get("year_built", 2000)
         age = 2025 - year_built
 
-        # Calculate building dimensions
+
         if building_type == "residential":
             length, width = 20.0, 15.0
         elif building_type == "commercial":
@@ -312,18 +293,17 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
         floor_height = 3.0
         total_height = floors * floor_height
 
-        # Create structural mesh grid
+
         mesh_data = self._create_structural_mesh(
             length, width, total_height, floors
         )
 
-        # Convert annotations to damage points
+
         damage_points = []
         for ann in annotations:
             pos = ann.get("position", {})
             issue_type = ann.get("issueType", "unknown")
 
-            # Transform image coordinates to 3D space
             x = (pos.get("x", 512) / 1024.0 - 0.5) * length
             y = (pos.get("y", 512) / 1024.0 - 0.5) * width
             z = (pos.get("y", 512) / 1024.0) * total_height
@@ -335,7 +315,7 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
                 "description": ann.get("description", "")
             })
 
-        # Extract collapse sequence
+
         collapse_sequence = collapse_simulation.get("collapse_sequence", [])
         failure_time = collapse_simulation.get("failure_time", 5.0)
 
@@ -374,15 +354,14 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
     def _create_structural_mesh(self, length: float, width: float, height: float, floors: int) -> Dict:
         """Create VTK structural mesh grid with realistic structural elements"""
 
-        # Adjust grid resolution based on building size (higher resolution for larger buildings)
-        nx = max(8, min(15, int(length / 2)))  # Adaptive X resolution
-        ny = max(8, min(15, int(width / 2)))   # Adaptive Y resolution
-        nz = floors * 4  # 4 layers per floor for better detail
+
+        nx = max(8, min(15, int(length / 2)))  
+        ny = max(8, min(15, int(width / 2)))   
+        nz = floors * 4  
 
         points = []
         cells = []
 
-        # Generate grid points with slight irregularities for realism
         for k in range(nz + 1):
             for j in range(ny + 1):
                 for i in range(nx + 1):
@@ -390,20 +369,19 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
                     y = (j / ny - 0.5) * width
                     z = (k / nz) * height
 
-                    # Add slight random variation to interior points for realism (not on boundaries)
+
                     if i > 0 and i < nx and j > 0 and j < ny and k > 0 and k < nz:
                         import random
-                        random.seed(i * 1000 + j * 100 + k)  # Consistent randomness
+                        random.seed(i * 1000 + j * 100 + k)  
                         x += random.uniform(-0.1, 0.1)
                         y += random.uniform(-0.1, 0.1)
 
                     points.append([x, y, z])
 
-        # Generate hexahedral cells (representing structural elements)
         for k in range(nz):
             for j in range(ny):
                 for i in range(nx):
-                    # Define 8 vertices of hexahedron
+
                     idx = i + j * (nx + 1) + k * (nx + 1) * (ny + 1)
                     cells.append([
                         idx,
@@ -443,7 +421,7 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
         """Save VTK datasets to files"""
         vtk_files = []
 
-        # Save main structural mesh
+
         mesh_file = os.path.join(self.temp_dir, "structure_mesh.vtk")
         self._write_vtk_unstructured_grid(
             mesh_file,
@@ -452,7 +430,7 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
         )
         vtk_files.append(mesh_file)
 
-        # Save simulation data as JSON (for time-series data)
+
         data_file = os.path.join(self.temp_dir, "simulation_data.json")
         with open(data_file, 'w') as f:
             json.dump(vtk_data, f, indent=2)
@@ -463,24 +441,22 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
     def _write_vtk_unstructured_grid(self, filename: str, points: List, cells: List):
         """Write VTK unstructured grid file (legacy format)"""
         with open(filename, 'w') as f:
-            # Header
+
             f.write("# vtk DataFile Version 3.0\n")
             f.write("Structural mesh\n")
             f.write("ASCII\n")
             f.write("DATASET UNSTRUCTURED_GRID\n")
 
-            # Points
+
             f.write(f"POINTS {len(points)} float\n")
             for point in points:
                 f.write(f"{point[0]} {point[1]} {point[2]}\n")
 
-            # Cells
             total_size = sum(len(cell) + 1 for cell in cells)
             f.write(f"\nCELLS {len(cells)} {total_size}\n")
             for cell in cells:
                 f.write(f"{len(cell)} " + " ".join(map(str, cell)) + "\n")
 
-            # Cell types (12 = VTK_HEXAHEDRON)
             f.write(f"\nCELL_TYPES {len(cells)}\n")
             for _ in cells:
                 f.write("12\n")
@@ -496,11 +472,10 @@ Provide your analysis in clear, structured format. Be specific about numbers, ti
     ) -> str:
         """Generate Python script for ParaView/VTK visualization"""
 
-        # Convert paths to forward slashes
         vtk_files_str = [f.replace("\\", "/") for f in vtk_files]
         output_path_fixed = output_path.replace("\\", "/")
 
-        # Load simulation data
+
         building = vtk_data["building"]
         simulation = vtk_data["simulation"]
         damage_points = vtk_data["damage"]["points"]
@@ -839,20 +814,19 @@ print("Simulation complete!")
             logger.info(f"Script: {script_file}")
             logger.info(f"Output: {output_path}")
 
-            # Run with Python (using VTK library)
             cmd = ["python", script_file]
 
             logger.info(f"Command: {' '.join(cmd)}")
 
-            # Run with extended timeout
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=600  # 10 minute timeout
+                timeout=600  
             )
 
-            # Log output
+
             if result.stdout:
                 logger.info(f"VTK stdout: {result.stdout[-1000:]}")
             if result.stderr:
@@ -861,7 +835,7 @@ print("Simulation complete!")
             if result.returncode != 0:
                 raise Exception(f"VTK rendering failed with code {result.returncode}")
 
-            # Check if output file was created
+
             if not os.path.exists(output_path):
                 raise Exception(f"Output video file not created: {output_path}")
 
@@ -887,14 +861,14 @@ print("Simulation complete!")
             logger.info("Testing VTK installation...")
             import vtk
 
-            # Create simple test render
+
             renderer = vtk.vtkRenderer()
             render_window = vtk.vtkRenderWindow()
             render_window.AddRenderer(renderer)
             render_window.SetSize(640, 480)
             render_window.SetOffScreenRendering(1)
 
-            # Add cube
+
             cube = vtk.vtkCubeSource()
             mapper = vtk.vtkPolyDataMapper()
             mapper.SetInputConnection(cube.GetOutputPort())
@@ -902,7 +876,7 @@ print("Simulation complete!")
             actor.SetMapper(mapper)
             renderer.AddActor(actor)
 
-            # Render
+
             render_window.Render()
 
             logger.info("✅ VTK test passed!")

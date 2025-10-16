@@ -3,15 +3,13 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import '../models/annotation.dart';
-// import '../models/assessment_data.dart'; // This file doesn't exist yet
 
 class AssessmentCompletionService {
   static final AssessmentCompletionService _instance = AssessmentCompletionService._internal();
   factory AssessmentCompletionService() => _instance;
   AssessmentCompletionService._internal();
 
-  // Backend API endpoints
-  static const String _baseUrl = 'http://192.168.1.20:8000/api/v1'; // Host machine IP
+  static const String _baseUrl = 'http://192.168.1.20:8000/api/v1'; 
   static const String _submitAssessmentEndpoint = '/assessments/submit';
   static const String _uploadPhotosEndpoint = '/assessments/upload-photos';
   static const String _getAnalysisEndpoint = '/assessments/status';
@@ -19,7 +17,7 @@ class AssessmentCompletionService {
   static const String _simulationVideoEndpoint = '/simulation/video';
   static const String _simulationStatusEndpoint = '/simulation/status';
 
-  /// Submit complete assessment with all data
+
   Future<AssessmentResult> submitCompleteAssessment({
     required AssessmentData assessmentData,
     required List<String> photoPaths,
@@ -38,11 +36,10 @@ class AssessmentCompletionService {
       print('📍 Annotations: ${annotations.length}');
       print('──────────────────────────────────────────────────────────');
 
-      // Call real physics simulation backend
       print('🔗 Calling physics simulation backend...');
       print('Backend URL: $_baseUrl$_physicsSimulationEndpoint');
 
-      // Step 1: Prepare physics simulation request
+
       final Map<String, dynamic> simulationRequest = {
         'building_type': assessmentData.buildingType,
         'number_of_floors': assessmentData.numberOfFloors,
@@ -67,7 +64,7 @@ class AssessmentCompletionService {
       final requestJson = jsonEncode(simulationRequest);
       print('📦 Request size: ${requestJson.length} characters');
 
-      // Step 2: Call physics simulation API
+
       final startTime = DateTime.now();
       final response = await http.post(
         Uri.parse('$_baseUrl$_physicsSimulationEndpoint'),
@@ -98,7 +95,6 @@ class AssessmentCompletionService {
         print('🎥 Video URL: ${responseData['video_url']}');
         print('──────────────────────────────────────────────────────────');
 
-        // Convert backend response to AssessmentResult
         final AssessmentResult result = AssessmentResult(
           assessmentId: responseData['simulation_id'],
           riskLevel: responseData['risk_level'],
@@ -142,7 +138,6 @@ class AssessmentCompletionService {
     }
   }
 
-  /// Upload photos to backend
   Future<List<String>> _uploadPhotos(List<String> photoPaths) async {
     try {
       final List<String> uploadedUrls = [];
@@ -190,9 +185,8 @@ class AssessmentCompletionService {
     }
   }
 
-  /// Poll backend for analysis results
   Future<AssessmentResult> _pollForAnalysisResults(String assessmentId) async {
-    const int maxAttempts = 60; // 5 minutes with 5-second intervals
+    const int maxAttempts = 60; 
     const Duration pollInterval = Duration(seconds: 5);
     
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
@@ -217,7 +211,7 @@ class AssessmentCompletionService {
             throw Exception('Analysis failed: ${responseData['error']}');
           }
           
-          // Still processing, wait and try again
+
           await Future.delayed(pollInterval);
         } else {
           print('Error polling results: ${response.statusCode} - ${response.body}');
@@ -232,26 +226,26 @@ class AssessmentCompletionService {
     throw Exception('Analysis timed out after ${maxAttempts * 5} seconds');
   }
 
-  /// Run physics-based structural analysis
+
   Future<AssessmentResult> _runPhysicsAnalysis(AssessmentData assessmentData, List<Annotation> annotations) async {
-    // Simulate processing time
+
     await Future.delayed(Duration(seconds: 1));
     
-    // Physics-based structural analysis
+
     final int buildingAge = DateTime.now().year - assessmentData.yearBuilt;
     final int annotationCount = annotations.length;
     final int damageTypeCount = assessmentData.damageTypes.length;
     final int floors = assessmentData.numberOfFloors;
     final String material = assessmentData.primaryMaterial;
     
-    // Calculate structural parameters
+
     final double ageFactor = _calculateAgeDegradationFactor(buildingAge);
     final double damageFactor = _calculateDamageFactor(damageTypeCount, annotationCount);
     final double loadFactor = _calculateLoadFactor(floors, material);
     final double safetyFactor = _calculateSafetyFactor(ageFactor, damageFactor, loadFactor);
     final double failureProbability = _calculateFailureProbability(safetyFactor, damageFactor);
     
-    // Determine risk level based on engineering calculations
+
     String riskLevel = _determineRiskLevel(safetyFactor, failureProbability);
     String analysis = _generateEngineeringAnalysis(
       buildingAge, floors, material, safetyFactor, failureProbability, annotationCount
@@ -261,7 +255,7 @@ class AssessmentCompletionService {
       riskLevel, safetyFactor, failureProbability, floors, material
     );
     
-    // Add annotation-specific analysis
+
     if (annotations.isNotEmpty) {
       analysis += '\n\nANNOTATION ANALYSIS:';
       for (final annotation in annotations) {
@@ -269,8 +263,7 @@ class AssessmentCompletionService {
       }
       analysis += '\n\nTotal annotated issues: ${annotations.length}';
     }
-    
-    // Add building-specific recommendations
+
     if (assessmentData.primaryMaterial == 'wood' && buildingAge > 20) {
       recommendations.add('Wooden structures over 20 years old require specialized assessment');
     }
@@ -278,7 +271,7 @@ class AssessmentCompletionService {
       recommendations.add('Multi-story buildings require additional safety measures');
     }
     
-    // Generate offline video URL (placeholder for offline mode)
+
     final String videoUrl = 'http://192.168.1.20:8000/api/v1/simulation/video/placeholder/offline_${DateTime.now().millisecondsSinceEpoch}';
     
     return AssessmentResult(
@@ -301,25 +294,25 @@ class AssessmentCompletionService {
     );
   }
   
-  /// Calculate age degradation factor (0.0-1.0)
+
   double _calculateAgeDegradationFactor(int age) {
-    // Exponential degradation model
+
     return math.exp(-age * 0.02).clamp(0.1, 1.0);
   }
   
-  /// Calculate damage factor based on damage types and annotations
+  
   double _calculateDamageFactor(int damageTypes, int annotations) {
     return (1.0 + damageTypes * 0.3 + annotations * 0.1).clamp(1.0, 3.0);
   }
   
-  /// Calculate load factor based on floors and material
+ 
   double _calculateLoadFactor(int floors, String material) {
     double baseLoad = floors * 1.0;
     double materialFactor = _getMaterialFactor(material);
     return baseLoad * materialFactor;
   }
   
-  /// Get material strength factor
+ 
   double _getMaterialFactor(String material) {
     switch (material.toLowerCase()) {
       case 'steel': return 1.0;
@@ -329,13 +322,11 @@ class AssessmentCompletionService {
       default: return 0.7;
     }
   }
-  
-  /// Calculate safety factor (engineering standard)
+
   double _calculateSafetyFactor(double ageFactor, double damageFactor, double loadFactor) {
     return (ageFactor * 2.0) / (damageFactor * loadFactor);
   }
   
-  /// Calculate failure probability (0.0-1.0)
   double _calculateFailureProbability(double safetyFactor, double damageFactor) {
     if (safetyFactor >= 2.0) return 0.01;
     if (safetyFactor >= 1.5) return 0.05;
@@ -344,7 +335,7 @@ class AssessmentCompletionService {
     return 0.9;
   }
   
-  /// Determine risk level based on engineering parameters
+
   String _determineRiskLevel(double safetyFactor, double failureProbability) {
     if (safetyFactor < 0.5 || failureProbability > 0.8) return 'critical';
     if (safetyFactor < 1.0 || failureProbability > 0.5) return 'high';
@@ -352,7 +343,7 @@ class AssessmentCompletionService {
     return 'low';
   }
   
-  /// Generate engineering analysis report
+
   String _generateEngineeringAnalysis(int age, int floors, String material, 
                                    double safetyFactor, double failureProbability, int annotations) {
     return '''
@@ -374,7 +365,7 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
 ''';
   }
   
-  /// Get engineering assessment text
+
   String _getEngineeringAssessment(double safetyFactor, double failureProbability) {
     if (safetyFactor < 0.5) {
       return 'CRITICAL: Safety factor below minimum acceptable limit. Immediate structural intervention required.';
@@ -387,7 +378,7 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
     }
   }
   
-  /// Predict failure mode based on engineering parameters
+
   String _predictFailureMode(double safetyFactor, int damageTypes, String material) {
     if (safetyFactor < 0.5) {
       return 'Progressive collapse due to multiple structural failures';
@@ -400,7 +391,7 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
     }
   }
   
-  /// Generate engineering recommendations
+
   List<String> _generateEngineeringRecommendations(String riskLevel, double safetyFactor, 
                                                  double failureProbability, int floors, String material) {
     List<String> recommendations = [];
@@ -438,7 +429,7 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
       ]);
     }
     
-    // Add material-specific recommendations
+   
     if (material == 'wood' && floors > 2) {
       recommendations.add('Wooden multi-story structures require specialized assessment');
     }
@@ -449,10 +440,9 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
     return recommendations;
   }
   
-  /// Extract recommendations from engineering analysis text
+
   List<String> _extractRecommendations(String analysis) {
-    // Simple extraction of recommendations from analysis text
-    // In a real implementation, this would parse the structured response
+
     List<String> recommendations = [];
     
     if (analysis.contains('CRITICAL') || analysis.contains('IMMEDIATE EVACUATION')) {
@@ -487,7 +477,7 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
     return recommendations;
   }
   
-  /// Calculate risk score (0-100)
+
   int _calculateRiskScore(int age, int damageTypes, int annotations) {
     int score = 0;
     score += (age / 2).round(); // Age factor
@@ -497,7 +487,6 @@ ${_getEngineeringAssessment(safetyFactor, failureProbability)}
   }
 }
 
-/// Assessment data model
 class AssessmentData {
   final String buildingType;
   final int numberOfFloors;
@@ -539,7 +528,7 @@ class AssessmentData {
   }
 }
 
-/// Assessment result model
+
 class AssessmentResult {
   final String assessmentId;
   final String riskLevel;

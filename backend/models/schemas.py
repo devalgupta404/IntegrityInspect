@@ -76,10 +76,10 @@ class AnalysisResponse(BaseModel):
     generated_at: datetime
     confidence: str
 
-# Physics Simulation Schemas
+
 class AnnotationData(BaseModel):
     id: str
-    position: Dict[str, float]  # {"x": 0.0, "y": 0.0}
+    position: Dict[str, float]  
     issueType: str
     description: str
     color: str

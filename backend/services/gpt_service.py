@@ -56,7 +56,7 @@ Consider:
 
 Respond ONLY in valid JSON format."""
 
-        # Build user message with building data
+
         damage_types_text = ", ".join(building_data.get('damage_types', []))
 
         user_content = [
@@ -87,20 +87,18 @@ Focus on:
             }
         ]
 
-        # Add images to the message
-        for idx, url in enumerate(image_urls[:5]):  # Limit to 5 images
+        for idx, url in enumerate(image_urls[:5]):  
             user_content.append({
                 "type": "image_url",
                 "image_url": {
                     "url": url,
-                    "detail": "high"  # Request high detail analysis
+                    "detail": "high"  
                 }
             })
 
         try:
             logger.info(f"Analyzing building: {building_data.get('building_type')} with {len(image_urls)} images")
 
-            # Check if client is available (API key provided)
             if not self.client:
                 logger.info("Using mock GPT analysis response (no API key)")
                 return {
@@ -116,7 +114,6 @@ Focus on:
                     "confidence": "medium"
                 }
 
-            # Call GPT-4 Vision
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -125,26 +122,26 @@ Focus on:
                 ],
                 response_format={"type": "json_object"},
                 max_tokens=2500,
-                temperature=0.3  # Lower temperature for more consistent analysis
+                temperature=0.3  
             )
 
-            # Parse the response
+
             result = json.loads(response.choices[0].message.content)
 
             logger.info(f"GPT analysis completed: Risk Level = {result.get('risk_level')}, Confidence = {result.get('confidence')}")
 
-            # Validate required fields
+
             required_fields = ['risk_level', 'analysis', 'recommendations', 'sora_prompt']
             for field in required_fields:
                 if field not in result:
                     logger.warning(f"Missing required field in GPT response: {field}")
                     result[field] = self._get_default_value(field)
 
-            # Ensure recommendations is a list
+
             if isinstance(result.get('recommendations'), str):
                 result['recommendations'] = [result['recommendations']]
 
-            # Ensure immediate_actions is present
+
             if 'immediate_actions' not in result:
                 result['immediate_actions'] = self._generate_default_actions(result.get('risk_level', 'medium'))
 
@@ -169,7 +166,6 @@ Focus on:
             return self._create_fallback_response(building_data, str(e))
 
     def _get_default_value(self, field: str) -> any:
-        """Provide default values for missing fields"""
         defaults = {
             'risk_level': 'medium',
             'analysis': 'Unable to complete full analysis. Manual inspection recommended.',
@@ -180,7 +176,6 @@ Focus on:
         return defaults.get(field, 'Unknown')
 
     def _generate_default_actions(self, risk_level: str) -> List[str]:
-        """Generate default immediate actions based on risk level"""
         base_actions = [
             "Establish a safety perimeter",
             "Alert all personnel to potential hazards",
@@ -199,7 +194,6 @@ Focus on:
         return base_actions
 
     def _create_fallback_response(self, building_data: Dict, error: str) -> Dict:
-        """Create a conservative fallback response in case of errors"""
         return {
             "risk_level": "high",  # Conservative default
             "analysis": f"Automated analysis unavailable due to technical error: {error}. "
@@ -230,7 +224,6 @@ Focus on:
         }
 
     async def generate_report_summary(self, assessment_data: Dict, analysis_result: Dict) -> str:
-        """Generate a concise summary for reports"""
         try:
             response = await self.client.chat.completions.create(
                 model="gpt-4",

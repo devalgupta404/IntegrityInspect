@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // App Logo/Icon
+
               Container(
                 width: 120,
                 height: 120,
@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
 
               const SizedBox(height: 30),
 
-              // App Title
+
               const Text(
                 'Integrity Inspect',
                 style: TextStyle(
@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
 
               const SizedBox(height: 10),
 
-              // Subtitle
+ 
               const Text(
                 'Emergency Structural Assessment',
                 style: TextStyle(
@@ -102,7 +102,7 @@ class _SplashScreenState extends State<SplashScreen>
 
               const SizedBox(height: 60),
 
-              // Loading Indicator
+
               SizedBox(
                 width: 50,
                 height: 50,

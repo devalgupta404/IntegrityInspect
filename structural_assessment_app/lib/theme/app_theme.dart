@@ -11,7 +11,7 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: const Color(0xFFF5F5F5),
 
-      // App Bar Theme
+
       appBarTheme: const AppBarTheme(
         elevation: 0,
         centerTitle: true,
@@ -25,7 +25,7 @@ class AppTheme {
         ),
       ),
 
-      // Card Theme
+
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -35,7 +35,6 @@ class AppTheme {
         shadowColor: Colors.black26,
       ),
 
-      // Button Themes
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
@@ -72,7 +71,7 @@ class AppTheme {
         ),
       ),
 
-      // Input Decoration Theme
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
@@ -107,7 +106,7 @@ class AppTheme {
         ),
       ),
 
-      // Chip Theme
+
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFE3F2FD),
         deleteIconColor: const Color(0xFF2196F3),
@@ -121,7 +120,7 @@ class AppTheme {
         ),
       ),
 
-      // Floating Action Button Theme
+
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         elevation: 4,
         backgroundColor: Color(0xFFFF5722),
@@ -129,7 +128,7 @@ class AppTheme {
         shape: CircleBorder(),
       ),
 
-      // Bottom Navigation Bar Theme
+
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         elevation: 8,
         backgroundColor: Colors.white,
@@ -146,14 +145,13 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
       ),
 
-      // Divider Theme
+
       dividerTheme: const DividerThemeData(
         color: Color(0xFFE0E0E0),
         thickness: 1,
         space: 1,
       ),
 
-      // Text Theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
@@ -212,7 +210,7 @@ class AppTheme {
         ),
       ),
 
-      // Dialog Theme
+
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -221,7 +219,7 @@ class AppTheme {
         backgroundColor: Colors.white,
       ),
 
-      // Bottom Sheet Theme
+
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
@@ -230,13 +228,11 @@ class AppTheme {
         elevation: 8,
       ),
 
-      // Progress Indicator Theme
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: Color(0xFF2196F3),
         circularTrackColor: Color(0xFFE3F2FD),
       ),
 
-      // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFF323232),
         contentTextStyle: const TextStyle(
@@ -252,7 +248,7 @@ class AppTheme {
     );
   }
 
-  // Helper methods for gradients
+
   static LinearGradient get primaryGradient {
     return const LinearGradient(
       begin: Alignment.topLeft,
@@ -297,7 +293,7 @@ class AppTheme {
     );
   }
 
-  // Helper method to get risk color
+
   static Color getRiskColor(String riskLevel) {
     switch (riskLevel.toLowerCase()) {
       case 'low':
@@ -313,7 +309,7 @@ class AppTheme {
     }
   }
 
-  // Helper method to get risk gradient
+
   static LinearGradient getRiskGradient(String riskLevel) {
     switch (riskLevel.toLowerCase()) {
       case 'low':

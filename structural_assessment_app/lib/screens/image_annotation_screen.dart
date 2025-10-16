@@ -238,7 +238,7 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
       }
     });
     
-    // Auto-save after moving annotation (with debounce)
+    
     _debouncedSave();
   }
 
@@ -332,7 +332,6 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
       _newAnnotationPosition = null;
     });
 
-    // Auto-save after adding annotation (with debounce)
     _debouncedSave();
     _showAnnotationDetails(annotation);
   }
@@ -357,7 +356,6 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
               ),
               maxLines: 3,
               onChanged: (value) {
-                // Update annotation with additional notes
                 final index = _annotations.indexWhere((a) => a.id == annotation.id);
                 if (index != -1) {
                   setState(() {
@@ -501,7 +499,6 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
         ),
       );
     } else if (_annotations.isNotEmpty) {
-      // Generate annotated image if not already generated
       print('Generating annotated image for viewing...');
       final annotatedPath = await _imageService.generateAnnotatedImage(
         widget.imagePath,
@@ -542,10 +539,10 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
     try {
       print('Saving ${_annotations.length} annotations...');
       
-      // Save annotation data
+
       await _storageService.saveAnnotations(widget.imagePath, _annotations);
       
-      // Generate annotated image
+
       if (_annotations.isNotEmpty) {
         print('Generating annotated image...');
         final annotatedImagePath = await _imageService.generateAnnotatedImage(

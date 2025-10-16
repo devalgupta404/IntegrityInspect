@@ -1,27 +1,27 @@
 # Integrity Inspect - Emergency Structural Assessment System
 
-🏗️ **AI-Powered Building Safety Assessment for First Responders**
+AI-Powered Building Safety Assessment for First Responders
 
-A comprehensive mobile and cloud-based system for emergency responders to rapidly assess damaged buildings during disasters, featuring GPT-5 Vision analysis, Sora video simulations, and a beautiful, smooth mobile interface.
+A comprehensive mobile and cloud-based system for emergency responders to rapidly assess damaged buildings during disasters, featuring GPT-4 Vision analysis, physics-based video simulations, and a smooth mobile interface.
 
-## ✨ Highlights
+## Highlights
 
-- ✅ **Beautiful, Smooth UI** - Material Design 3 with Flutter Animate
-- ✅ **Offline-First** - Work without internet, sync later
-- ✅ **AI-Powered Analysis** - GPT-5 Vision structural assessment
-- ✅ **Video Simulations** - Sora collapse predictions (downloadable)
-- ✅ **Optimized Performance** - Image compression, lazy loading, smooth animations
-- ✅ **Comprehensive Backend** - FastAPI with async processing
+- **Beautiful, Smooth UI** - Material Design 3 with Flutter Animate
+- **Offline-First** - Work without internet, sync later
+- AI-Powered Analysis - GPT-4 Vision structural assessment
+- Video Simulations - Physics-based collapse predictions (downloadable)
+- **Optimized Performance** - Image compression, lazy loading, smooth animations
+- **Comprehensive Backend** - FastAPI with async processing
 
-## 📱 Mobile App Features
+## Mobile App Features
 
-### Implemented ✅
+### Implemented 
 
 1. **Flutter Project Structure** - Complete folder organization
 2. **Data Models** - Hive-based offline storage (BuildingAssessment, AnalysisResult, Hazard)
 3. **Local Storage Service** - Fast, encrypted local database
 4. **Camera Service** - Auto-compress images to < 2MB
-5. **Video Download Service** - Download & cache Sora videos
+5. **Video Simulations** - Physics-based collapse predictions (downloadable)
 6. **Beautiful UI Screens**:
    - Splash Screen (animated gradient, smooth transitions)
    - Home Screen (dashboard with stats, quick actions, recent assessments)
@@ -34,31 +34,31 @@ A comprehensive mobile and cloud-based system for emergency responders to rapidl
 structural_assessment_app/
 ├── lib/
 │   ├── models/
-│   │   ├── building_assessment.dart (✅ Hive model)
-│   │   ├── hazard.dart (✅ Hive model)
-│   │   └── analysis_result.dart (✅ Hive model + video download tracking)
+│   │   ├── building_assessment.dart (Hive model)
+│   │   ├── hazard.dart (Hive model)
+│   │   └── analysis_result.dart (Hive model + video download tracking)
 │   ├── services/
-│   │   ├── local_storage_service.dart (✅ Complete CRUD)
-│   │   ├── camera_service.dart (✅ Auto-compress, watermark)
-│   │   └── video_service.dart (✅ Download, share, storage mgmt)
+│   │   ├── local_storage_service.dart (Complete CRUD)
+│   │   ├── camera_service.dart (Auto-compress, watermark)
+│   │   └── video_service.dart (Download, share, storage mgmt)
 │   ├── screens/
-│   │   ├── splash_screen.dart (✅ Beautiful animations)
-│   │   └── home_screen.dart (✅ Dashboard with smooth UI)
+│   │   ├── splash_screen.dart (Beautiful animations)
+│   │   └── home_screen.dart (Dashboard with smooth UI)
 │   ├── theme/
-│   │   └── app_theme.dart (✅ Complete Material 3 theme)
+│   │   └── app_theme.dart (Complete Material 3 theme)
 │   ├── utils/
-│   │   └── constants.dart (✅ All app constants)
-│   └── main.dart (✅ App initialization)
+│   │   └── constants.dart (All app constants)
+│   └── main.dart (App initialization)
 ```
 
-## 🔧 Backend API
+## Backend API
 
-### Implemented ✅
+### Implemented 
 
-1. **FastAPI Structure** - Modern async Python backend
-2. **GPT-5 Service** - Comprehensive structural analysis with fallbacks
-3. **Sora Service** - Video generation with polling and placeholders
-4. **Main Application** - CORS, health checks, error handling
+1. FastAPI Structure - Modern async Python backend
+2. GPT-4 Service - Comprehensive structural analysis with fallbacks
+3. Physics Simulation Service - Video generation with OpenCV/ParaView
+4. Main Application - CORS, health checks, error handling
 
 ### File Structure
 
@@ -67,13 +67,13 @@ backend/
 ├── api/
 │   └── routes/ (ready for implementation)
 ├── services/
-│   ├── gpt_service.py (✅ GPT-4 Vision integration)
-│   └── sora_service.py (✅ Video generation)
-├── main.py (✅ FastAPI app)
-└── requirements.txt (✅ All dependencies)
+│   ├── gpt_service.py (GPT-4 Vision integration)
+│   └── simulation_video_service.py (Video generation)
+├── main.py (FastAPI app)
+└── requirements.txt (All dependencies)
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -103,7 +103,7 @@ python main.py
 # API runs on http://localhost:8000
 ```
 
-## 🎨 UI/UX Excellence
+## UI/UX Excellence
 
 ### Smooth Animations
 
@@ -122,9 +122,9 @@ Every screen features:
 - **60 FPS**: Buttery smooth animations
 - **Optimized Builds**: Tree-shaking and minification
 
-## 🤖 AI Integration
+## AI Integration
 
-### GPT-5 Vision Analysis
+### GPT-4 Vision Analysis
 
 The backend provides comprehensive structural assessments:
 
@@ -145,29 +145,29 @@ The backend provides comprehensive structural assessments:
 }
 ```
 
-### Sora Video Generation
+### Physics-Based Video Generation
 
-Creates realistic collapse simulations:
-- Professional cinematography
-- Realistic physics
-- Dust and debris effects
-- 5-second high-quality videos
+Creates realistic collapse simulations using OpenCV and ParaView:
+- Engineering-focused visualizations
+- Stress analysis heatmaps
+- Progressive collapse sequences
+- Safety zone overlays
 - Downloadable for offline viewing
 
-## 📊 Data Flow
+## Data Flow
 
 ```
 1. User captures assessment (offline) → Local Hive DB
 2. Images auto-compressed → < 2MB each
 3. When online → Syncs to backend
-4. Backend → GPT-5 analyzes photos
-5. If high risk → Sora generates video
+4. Backend → GPT-4 analyzes photos
+5. If high risk → Physics simulation generates video
 6. Results → Synced back to app
 7. User downloads video → Local storage
 8. Available offline forever
 ```
 
-## 🔐 Security
+## Security
 
 - ✅ Secure key storage (flutter_secure_storage)
 - ✅ Encrypted local database
@@ -175,7 +175,7 @@ Creates realistic collapse simulations:
 - ✅ Input validation
 - ✅ Conservative AI fallbacks
 
-## 📦 What's Built
+## What's Built
 
 ### Mobile (Flutter)
 - [x] Project structure & dependencies
@@ -195,30 +195,11 @@ Creates realistic collapse simulations:
 
 ### Backend (Python)
 - [x] FastAPI structure
-- [x] GPT-5 Vision service
-- [x] Sora video service
+- [x] GPT-4 Vision service
+- [x] Physics simulation video service
 - [x] Health endpoints
 - [ ] Assessment routes
 - [ ] Analysis routes
 - [ ] File upload handling
 - [ ] Database integration
 - [ ] S3 storage
-
-## 🎯 Next Steps
-
-1. **Complete Assessment Form** - Multi-step form with validation
-2. **Photo Capture Screen** - Camera with annotation
-3. **Results Screen** - Analysis display with video player
-4. **Sync Service** - Background sync with retry logic
-5. **API Routes** - Complete backend endpoints
-6. **End-to-End Testing** - Full workflow testing
-
-## 📧 Contact
-
-For questions or support: support@integrityinspect.com
-
----
-
-**Built for Emergency Responders** 🚨
-
-*Beautiful UI + Powerful AI = Safer Disaster Response*

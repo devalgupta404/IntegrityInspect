@@ -21,13 +21,13 @@ class LocalStorageService {
     if (_isInitialized) return;
 
     try {
-      // Get application documents directory
+
       final appDocumentDir = await getApplicationDocumentsDirectory();
 
-      // Initialize Hive
+
       await Hive.initFlutter(appDocumentDir.path);
 
-      // Register adapters
+
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(BuildingAssessmentAdapter());
       }
@@ -38,7 +38,7 @@ class LocalStorageService {
         Hive.registerAdapter(AnalysisResultAdapter());
       }
 
-      // Open boxes
+
       _assessmentBox = await Hive.openBox<BuildingAssessment>(
         AppConstants.assessmentBoxName,
       );
@@ -57,7 +57,7 @@ class LocalStorageService {
     }
   }
 
-  // Assessment CRUD operations
+
   Future<void> saveAssessment(BuildingAssessment assessment) async {
     await _assessmentBox.put(assessment.id, assessment);
   }
@@ -99,7 +99,7 @@ class LocalStorageService {
     }
   }
 
-  // Analysis Result CRUD operations
+
   Future<void> saveAnalysisResult(AnalysisResult result) async {
     await _analysisBox.put(result.id, result);
   }
@@ -138,8 +138,6 @@ class LocalStorageService {
       await _analysisBox.put(id, updated);
     }
   }
-
-  // Settings operations
   Future<void> setSetting(String key, dynamic value) async {
     await _settingsBox.put(key, value);
   }
@@ -152,7 +150,6 @@ class LocalStorageService {
     await _settingsBox.delete(key);
   }
 
-  // Cleanup operations
   Future<void> clearAllData() async {
     await _assessmentBox.clear();
     await _analysisBox.clear();
@@ -170,7 +167,7 @@ class LocalStorageService {
     }
   }
 
-  // Stats and utility methods
+
   int get totalAssessments => _assessmentBox.length;
   int get unsyncedAssessmentsCount =>
       _assessmentBox.values.where((a) => !a.isSynced).length;
@@ -187,14 +184,14 @@ class LocalStorageService {
     return stats;
   }
 
-  // Export/backup operations
+
   Future<String> exportAssessmentsToJson() async {
     final assessments = getAllAssessments();
     final jsonList = assessments.map((a) => a.toJson()).toList();
     return jsonList.toString();
   }
 
-  // Dispose
+
   Future<void> dispose() async {
     await _assessmentBox.close();
     await _analysisBox.close();

@@ -11,7 +11,7 @@ class AnalysisResult extends HiveObject {
   final String assessmentId;
 
   @HiveField(2)
-  final String riskLevel; // low, medium, high, critical
+  final String riskLevel; 
 
   @HiveField(3)
   final String analysis;
@@ -119,7 +119,6 @@ class AnalysisResult extends HiveObject {
     );
   }
 
-  // Helper method to get risk color
   int getRiskColor() {
     switch (riskLevel.toLowerCase()) {
       case 'low':
@@ -135,7 +134,7 @@ class AnalysisResult extends HiveObject {
     }
   }
 
-  // Helper method to get risk icon
+
   String getRiskIcon() {
     switch (riskLevel.toLowerCase()) {
       case 'low':

@@ -239,13 +239,13 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Photo
+
           Image.file(
             File(photoPath),
             fit: BoxFit.cover,
           ),
 
-          // Gradient overlay
+
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -261,7 +261,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
             ),
           ),
 
-          // Photo number
+
           Positioned(
             bottom: 8,
             left: 8,
@@ -282,7 +282,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
             ),
           ),
 
-          // Delete button
+
           Positioned(
             top: 8,
             right: 8,
@@ -304,7 +304,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
             ),
           ),
 
-          // View button
+
           Positioned(
             bottom: 8,
             right: 8,
@@ -326,7 +326,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
             ),
           ),
 
-          // Annotate button
+
           Positioned(
             bottom: 8,
             left: 8,
@@ -408,7 +408,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
     try {
       final cameraService = context.read<CameraService>();
 
-      // Pick multiple photos
+
       final remainingSlots = AppConstants.maxPhotosPerAssessment - _photos.length;
       final photoPaths = await cameraService.pickMultipleImages();
 
@@ -513,7 +513,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
   }
 }
 
-// Full screen photo viewer
+
 class _PhotoViewScreen extends StatelessWidget {
   final String photoPath;
 

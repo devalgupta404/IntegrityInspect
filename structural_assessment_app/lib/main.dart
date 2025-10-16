@@ -13,7 +13,6 @@ import 'screens/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -23,13 +22,13 @@ void main() async {
     ),
   );
 
-  // Set preferred orientations
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Initialize services
+
   await _initializeServices();
 
   runApp(const StructuralAssessmentApp());
@@ -37,10 +36,10 @@ void main() async {
 
 Future<void> _initializeServices() async {
   try {
-    // Initialize local storage
+
     await LocalStorageService().init();
 
-    // Initialize cameras
+
     await CameraService().initializeCameras();
 
     print('All services initialized successfully');
@@ -56,7 +55,7 @@ class StructuralAssessmentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Add providers here as needed
+
         Provider<LocalStorageService>(
           create: (_) => LocalStorageService(),
         ),
@@ -96,10 +95,10 @@ class _PermissionWrapperState extends State<PermissionWrapper> {
 
   Future<void> _requestPermissions() async {
     try {
-      // Debug permissions first
+
       await PermissionDebug.debugAllPermissions();
       
-      // Add timeout to prevent hanging
+
       final granted = await PermissionService.requestAllPermissions(context)
           .timeout(const Duration(seconds: 30));
       

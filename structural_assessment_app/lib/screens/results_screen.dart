@@ -44,12 +44,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Future<void> _initializeVideo() async {
     if (widget.result.localVideoPath != null &&
         await File(widget.result.localVideoPath!).exists()) {
-      // Play from local file
+
       _videoController = VideoPlayerController.file(
         File(widget.result.localVideoPath!),
       );
     } else if (widget.result.videoUrl != null) {
-      // Play from network (or show download button)
+
       return;
     }
 
@@ -74,7 +74,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 _buildRecommendationsSection(),
                 if (widget.result.videoUrl != null) _buildVideoSection(),
                 _buildAssessmentDetailsSection(),
-                const SizedBox(height: 100), // Space for FAB
+                const SizedBox(height: 100), 
               ],
             ),
           ),
@@ -663,7 +663,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       );
 
       if (localPath != null) {
-        // Update result with local path
+
         setState(() {
           _isDownloading = false;
         });

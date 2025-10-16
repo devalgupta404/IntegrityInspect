@@ -16,7 +16,7 @@ async def get_latest_analysis(assessment_id: str = Query(..., description="Asses
     NOTE: Placeholder without a real database.
     """
 
-    # Placeholder: return None indicating not ready
+
     return None
 
 
@@ -27,7 +27,6 @@ async def get_analysis_by_id(assessment_id: str):
     NOTE: Placeholder without a real database.
     """
 
-    # Placeholder: simulate a completed response for demo
     logger.info(f"Fetching analysis for assessment {assessment_id}")
     return None
 
