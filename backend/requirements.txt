@@ -1,3 +1,4 @@
+# Core FastAPI dependencies
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 pydantic>=2.8.0
@@ -13,9 +14,8 @@ boto3>=1.34.0
 numpy<2.0.0,>=1.24.0
 opencv-python>=4.8.0
 
-# ParaView and VTK for physics-based simulations
+# VTK for physics-based simulations (ParaView is not available as pip package)
 vtk>=9.2.0
-paraview>=5.11.0
 
 # Optional physics libraries (can be skipped if not available)
 # pychrono==1.1.0  # Requires complex setup

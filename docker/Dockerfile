@@ -21,6 +21,17 @@ RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     make \
+    pkg-config \
+    # Image processing libraries (needed for Pillow, opencv-python)
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    # OpenCV dependencies
+    libopencv-dev \
+    python3-opencv \
     # Network tools
     curl \
     wget \
@@ -32,7 +43,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY backend/requirements-minimal.txt ./requirements.txt
+COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
