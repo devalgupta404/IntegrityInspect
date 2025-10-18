@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  integrity-inspect-backend:
+    image: slashex/integrity-inspect-backend:latest
+    container_name: integrity-inspect-backend
+    ports:
+      - "8001:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

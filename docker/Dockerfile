@@ -23,51 +23,24 @@ RUN apt-get update && apt-get install -y \
     make \
     cmake \
     pkg-config \
-    # Graphics and visualization libraries
+    # Graphics libraries (minimal set)
     libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libglu1-mesa-dev \
-    libxmu-dev \
-    libxi-dev \
     # Image processing libraries
-    libopencv-dev \
-    python3-opencv \
     libjpeg-dev \
     libpng-dev \
     libtiff-dev \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libv4l-dev \
-    libxvidcore-dev \
-    libx264-dev \
     # Video processing
     ffmpeg \
-    # Network and HTTP tools
+    # Network tools
     curl \
     wget \
     # Database client libraries
     libpq-dev \
-    # ParaView dependencies
-    libx11-6 \
-    libxext6 \
-    libxrender1 \
-    libxtst6 \
-    libxi6 \
-    libxrandr2 \
-    libxss1 \
-    libxcursor1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxinerama1 \
-    libxrandr2 \
-    libxtst6 \
-    libxxf86vm1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
@@ -79,11 +52,6 @@ COPY backend/requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-
-# Install VTK and ParaView (this may take some time)
-RUN pip install --no-cache-dir \
-    vtk==9.2.0 \
-    paraview==5.11.0
 
 # Copy application code
 COPY backend/ .
