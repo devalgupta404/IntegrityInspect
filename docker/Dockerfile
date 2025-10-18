@@ -5,7 +5,14 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
-    DISPLAY=:99
+    DISPLAY=:99 \
+    APP_NAME="Integrity Inspect API" \
+    APP_VERSION="1.0.0" \
+    DEBUG=false \
+    LOG_LEVEL=INFO \
+    HOST=0.0.0.0 \
+    PORT=8001 \
+    WORKERS=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -91,7 +98,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
+# Expose port (internal port 8000, will be mapped to external port 8001)
 EXPOSE 8000
 
 # Health check
